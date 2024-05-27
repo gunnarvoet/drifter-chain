@@ -1,0 +1,21 @@
+name: drifter
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - matplotlib
+  - netcdf4
+  - numpy
+  - pandas
+  - gsw
+  - scipy
+  - xarray
+  - pip
+  - pip:
+    - pyrsktools
+    - pyyaml
+    - "git+https://github.com/gunnarvoet/gvpy.git@v2024.05"
+    - "git+https://github.com/gunnarvoet/rbrmoored.git@v2024.05"
+    - "git+https://github.com/gunnarvoet/sbemoored.git@v2024.05"
+    - "git+https://github.com/modscripps/velosearaptor.git@ff8e2ce15ae747b39c1fdc733dc8cb7643e3431a"
+    - "hg+https://currents.soest.hawaii.edu/hgstage/pycurrents/#egg=pycurrents"
