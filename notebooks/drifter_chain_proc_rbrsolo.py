@@ -15,6 +15,15 @@ import gvpy as gv
 # %% [markdown]
 # The time offset for the RBR Solo has been recorded with a computer set to local time, need to adjust the time drift parameter by 7 hours.
 
+# %% [markdown]
+# SN 230754 and SN 230757 do not show a download time and thus also no time drift.
+
+# %% [markdown]
+# ---
+
+# %% [markdown]
+# Set up paths
+
 # %%
 rbr_data_dir = Path("/Users/gunnar/Projects/nesma/drifter/data/drifter_chain_2024_05/rbrsolo/")
 data_raw_dir = rbr_data_dir.joinpath("raw")
@@ -23,12 +32,6 @@ files = sorted(data_raw_dir.glob("*.rsk"))
 # %%
 data_proc_dir = rbr_data_dir.joinpath("proc")
 fig_dir = rbr_data_dir.joinpath("fig")
-
-# %%
-tmpf = files[0]
-
-# %%
-t = rbrmoored.solo.proc(tmpf, data_out=data_proc_dir, figure_out=fig_dir, show_plot=True, offset_time_drift=7)
 
 # %% [markdown]
 # Process all files
@@ -39,6 +42,58 @@ if False:
         t = rbrmoored.solo.proc(
             file, data_out=data_proc_dir, figure_out=fig_dir, show_plot=True, offset_time_drift=7
         )
+
+# %% [markdown]
+# Re-process SN 230757 (initial download was only partial).
+
+# %%
+file = files[-1]
+file
+
+# %%
+t = rbrmoored.solo.proc(
+    file, data_out=data_proc_dir, figure_out=fig_dir, show_plot=True, offset_time_drift=0
+)
+
+# %%
+# manually reading time drift from clock cal (see plot below)
+t.attrs["time drift in ms"] = 1.2e3
+# correct for time drift
+t = rbrmoored.solo.time_offset(t)
+
+# %%
+# save
+t.gv.to_netcdf(data_proc_dir.joinpath(file.stem), overwrite=True)
+
+# %%
+t = rbrmoored.solo.proc(
+    file, data_out=data_proc_dir, figure_out=fig_dir, show_plot=True, offset_time_drift=0
+)
+
+# %% [markdown]
+# Adjust time vector SN 230754
+
+# %%
+file = data_proc_dir.joinpath("230754_20240522_2214.nc")
+t = xr.open_dataarray(file)
+
+# %%
+# manually reading time drift from clock cal (see plot below)
+t.attrs["time drift in ms"] = 200
+# correct for time drift
+t = rbrmoored.solo.time_offset(t)
+
+# %%
+# save
+t.gv.to_netcdf(file, overwrite=True)
+
+# %%
+t = rbrmoored.solo.proc(
+    data_raw_dir.joinpath("230754_20240522_2214.rsk"), data_out=data_proc_dir, figure_out=fig_dir, show_plot=True, offset_time_drift=0
+)
+
+# %% [markdown]
+# ---
 
 # %% [markdown]
 # Read all files.

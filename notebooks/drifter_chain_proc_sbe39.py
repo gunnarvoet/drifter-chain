@@ -85,3 +85,39 @@ sbe.p.gv.plot()
 sbe.t.gv.plot()
 
 # %%
+
+# %%
+ncstr_2_day_test = "drifter_tchain_2024_05_17"
+raw_sbe39 = data_path.joinpath("sbe39/raw/sbe39_1102_20240529_no_header.asc")
+
+# %%
+# Read the file line by line using a custom parsing function
+data = []
+with open(raw_sbe39, 'r') as f:
+  for line in f:
+    parsed_data = parse_line(line)
+    data.append(parsed_data)
+
+# Create a pandas DataFrame from the list of dictionaries
+df = pd.DataFrame(data)
+
+# Convert to xarray Dataset with time as coordinate
+sbe = df.to_xarray()
+sbe.coords["time"] = sbe.date_time
+sbe = sbe.drop_vars(["date_time"])
+sbe = sbe.rename_vars(dict(value1="t", value2="p"))
+sbe = sbe.swap_dims(index="time")
+
+# %%
+proc_out = data_path.joinpath(f"sbe39/proc/{ncstr_2_day_test}_sbe39_1102.nc")
+sbe.to_netcdf(proc_out, encoding={
+    "time": {"units": "seconds since 1970-01-01", "dtype": "float"},
+    })
+
+# %%
+sbe.p.gv.plot()
+
+# %%
+sbe.t.gv.plot()
+
+# %%
